@@ -11,19 +11,17 @@ Generate, validate, and dry-run AWS CloudFormation templates using OpenAI's GPT-
 4. Validation & Dry-Run: Validates syntax and performs a dry-run deployment using AWS CLI.
 
 ## Requirements
-Operating System: Linux or macOS (Windows with WSL may work)
+1. Operating System: Linux or macOS (Windows with WSL may work)
 
-Python: 3.8+
+2. Python: 3.8+
 
-Bash: 4.x+
+3. AWS CLI: v2
 
-AWS CLI: v2
+4. OpenAI Python SDK: Latest version
 
-OpenAI Python SDK: Latest version
+5. pyyaml: Latest version
 
-pyyaml: Latest version
-
-Installation
+### Installation
 Clone this repository:
 
 bash
