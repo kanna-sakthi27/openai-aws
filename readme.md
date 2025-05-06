@@ -1,89 +1,131 @@
-### CloudFormation Template Generator with OpenAI
-Generate, validate, and dry-run AWS CloudFormation templates using OpenAI's GPT-4o model, all from the command line.
+
+# CloudFormation Automation Toolkit (OpenAI \& Azure OpenAI)
+
+This toolkit enables you to **generate, validate, and dry-run AWS CloudFormation templates** from natural language descriptions using either OpenAI or Azure OpenAI APIs. It also supports direct EC2 instance management (start/stop/restart) via natural language commands.
+
+---
 
 ## Features
-1. Natural Language to CloudFormation: Describe your AWS infrastructure in plain English.
 
-2. Automatic Template Generation: Uses OpenAI to generate valid CloudFormation YAML.
+- **Natural Language to CloudFormation:**
+Describe your desired AWS infrastructure in plain English and generate a ready-to-deploy CloudFormation YAML template.
+- **Template Validation and Dry-Run:**
+Automatically validate the generated template and perform a dry-run deployment using AWS CLI.
+- **EC2 Instance State Management:**
+Start, stop, or restart EC2 instances by name using natural language commands.
+- **Supports Both OpenAI and Azure OpenAI:**
+Choose your preferred LLM backend.
 
-3. Custom Value Injection: Optionally inject your own values via a YAML file.
+---
 
-4. Validation & Dry-Run: Validates syntax and performs a dry-run deployment using AWS CLI.
+## File Overview
 
-## Requirements
-1. Operating System: Linux or macOS (Windows with WSL may work)
+| File | Purpose |
+| :-- | :-- |
+| `openai-aws.sh` | Bash script for OpenAI-based template generation \& validation |
+| `openai.py` | Python script for OpenAI-based CloudFormation generation |
+| `gen-aws.sh` | Bash script for Azure OpenAI-based workflow \& EC2 management |
+| `main.py` | Python script for Azure OpenAI-based CloudFormation generation |
+| `ec2state-main.py` | Python script for EC2 state management via Azure OpenAI + AWS |
+| `values.yaml` | (Optional) YAML file for parameter values used in template generation |
 
-2. Python: 3.8+
 
-3. AWS CLI: v2
+---
 
-4. OpenAI Python SDK: Latest version
+## Quick Start
 
-5. pyyaml: Latest version
+### 1. Prerequisites
 
-### Installation
-Clone this repository:
+- **AWS CLI** configured with credentials and permissions
+- **Python 3.x** with packages: `openai`, `boto3`, `pyyaml`
+- For Azure OpenAI: `azure-openai` or compatible library
 
-bash
-git clone <your-repo-url>
-cd <your-repo-directory>
-Install Python dependencies:
 
-bash
-pip install openai pyyaml
-Install AWS CLI:
-Follow AWS CLI installation instructions.
+### 2. Environment Variables
 
-Configure AWS credentials:
+#### For OpenAI:
 
-bash
-aws configure
-Set your OpenAI API key:
+- `OPENAI_API_KEY` (if using `openai.py`)
 
-bash
-export OPENAI_API_KEY=sk-...
-Usage
-1. Generate & Validate a CloudFormation Template
-Run the Bash script with your infrastructure description:
 
-bash
-./openai-aws.sh "A VPC with two public subnets and an internet gateway"
-The script will:
+#### For Azure OpenAI:
 
-Generate a CloudFormation template using OpenAI.
+- `AZURE_OPENAI_ENDPOINT`
+- `AZURE_OPENAI_KEY`
+- `AZURE_OPENAI_DEPLOYMENT`
 
-Validate the template with AWS CLI.
+---
 
-Perform a dry-run deployment (no resources are created).
+### 3. Usage
 
-Output the template file name if successful.
+#### A. Generate and Validate CloudFormation Template
 
-2. Direct Python Usage
-Run the Python script directly:
+**Using OpenAI:**
 
-bash
-python openai.py "A Lambda function triggered by S3 uploads"
-With custom values:
+```sh
+./openai-aws.sh "Create an S3 bucket with versioning enabled"
+```
 
-bash
-python openai.py "A Lambda function triggered by S3 uploads" --values values.yaml
-File Descriptions
-openai.py
-Python script for template generation using OpenAI.
+**Using Azure OpenAI:**
 
-openai-aws.sh
-Bash script for automated generation, validation, and dry-run.
+```sh
+./gen-aws.sh "Create a VPC with 2 subnets" [--values values.yaml]
+```
 
-values.yaml (optional)
-YAML file for injecting custom values into your template.
 
-Example
-values.yaml:
+#### B. EC2 Instance State Management (Azure OpenAI only)
 
-text
+```sh
+./gen-aws.sh "Start the web-server instance"
+./gen-aws.sh "Stop the analytics-server"
+./gen-aws.sh "Restart the dev-server"
+```
+
+
+---
+
+## How It Works
+
+1. **Template Generation:**
+    - The bash script (`openai-aws.sh` or `gen-aws.sh`) passes your prompt to the relevant Python script (`openai.py` or `main.py`), which uses the LLM to generate CloudFormation YAML.
+2. **Validation \& Dry-Run:**
+    - The script validates the YAML with AWS CLI and performs a dry-run deployment using CloudFormation change sets.
+3. **EC2 Management:**
+    - For EC2 commands, `gen-aws.sh` routes the request to `ec2state-main.py`, which uses Azure OpenAI to extract intent and instance name, then uses boto3 to manage the instance.
+
+---
+
+## Example `values.yaml`
+
+```yaml
 BucketName: my-unique-bucket
-FunctionName: my-lambda-func
-Command:
+Environment: production
+InstanceType: t3.micro
+```
 
 
-``` ./openai-aws.sh "A Lambda function triggered by S3 uploads"```
+---
+
+## Notes
+
+- **No real resources are deployed** by default; only validation and dry-run are performed.
+- For EC2 state changes, ensure your AWS credentials allow the necessary actions.
+- For best results, provide clear and specific infrastructure descriptions.
+- You may use either OpenAI or Azure OpenAI workflows as suits your environment.
+
+---
+
+## Troubleshooting
+
+- **API Keys/Endpoints:** Ensure all required environment variables are set.
+- **Dependencies:** Install all required Python packages.
+- **Template Generation Fails:** Check your prompt clarity and LLM API access.
+
+---
+
+## Extending
+
+- Integrate additional resource types by enhancing prompt templates.
+- Support other cloud providers by adapting the Python scripts.
+
+---

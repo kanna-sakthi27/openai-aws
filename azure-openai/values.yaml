@@ -1,0 +1,4 @@
+vpc_id: xxxx
+keypair_name: xxxx
+ami_id: ami-xxxx
+instance_id: i-xxxx
